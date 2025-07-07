@@ -1,56 +1,76 @@
 package ru.yandex.practicum.telemetry.collector.controller;
 
 
-import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.telemetry.collector.model.HubEvent;
-import ru.yandex.practicum.telemetry.collector.model.HubEventType;
-import ru.yandex.practicum.telemetry.collector.model.SensorEvent;
-import ru.yandex.practicum.telemetry.collector.model.SensorEventType;
+import com.google.protobuf.Empty;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
+import net.devh.boot.grpc.server.service.GrpcService;
+import ru.yandex.practicum.grpc.telemetry.collector.CollectorControllerGrpc;
+import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.telemetry.collector.service.handler.HubEventHandler;
 import ru.yandex.practicum.telemetry.collector.service.handler.SensorEventHandler;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
-@Validated
-@RestController
-@RequestMapping(path = "/events")
-public class EventController {
-    private final Map<SensorEventType, SensorEventHandler> sensorEventHandlers;
-    private final Map<HubEventType, HubEventHandler> hubEventHandlers;
+@GrpcService
+public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
+    private final Map<SensorEventProto.PayloadCase, SensorEventHandler> sensorEventHandlers;
+    private final Map<HubEventProto.PayloadCase, HubEventHandler> hubEventHandlers;
 
     public EventController(Set<SensorEventHandler> sensorEventHandlers, Set<HubEventHandler> hubEventHandlers) {
         this.sensorEventHandlers = sensorEventHandlers.stream()
-                .collect(Collectors.toMap(SensorEventHandler::getMessageType, sensorEventHandler -> sensorEventHandler));
+                .collect(Collectors.toMap(
+                        SensorEventHandler::getMessageType,
+                        Function.identity()
+                ));
         this.hubEventHandlers = hubEventHandlers.stream()
-                .collect(Collectors.toMap(HubEventHandler::getMessageType, hubEventHandler -> hubEventHandler));
+                .collect(Collectors.toMap(
+                        HubEventHandler::getMessageType,
+                        Function.identity()
+                ));
     }
 
-    @PostMapping("/sensors")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void collectSensorEvent(@Valid @RequestBody SensorEvent request) {
-        log.info("--> POST запрос /events/sensors с телом {}", request);
-        if (sensorEventHandlers.containsKey(request.getType())) {
-            sensorEventHandlers.get(request.getType()).handle(request);
-        } else {
-            throw new IllegalArgumentException("Не могу найти обработчик.");
+    @Override
+    public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
+        try {
+            if (sensorEventHandlers.containsKey(request.getPayloadCase())) {
+                sensorEventHandlers.get(request.getPayloadCase()).handle(request);
+            } else {
+                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
+            }
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL
+                            .withDescription(e.getLocalizedMessage())
+                            .withCause(e)
+            ));
         }
     }
 
-    @PostMapping("/hubs")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void collectHubEvent(@Valid @RequestBody HubEvent request) {
-        log.info("--> POST запрос /events/hubs с телом {}", request);
-        if (hubEventHandlers.containsKey(request.getType())) {
-            hubEventHandlers.get(request.getType()).handle(request);
-        } else {
-            throw new IllegalArgumentException("Не могу найти обработчик.");
+    @Override
+    public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
+        try {
+            if (hubEventHandlers.containsKey(request.getPayloadCase())) {
+                hubEventHandlers.get(request.getPayloadCase()).handle(request);
+            } else {
+                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
+            }
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(new StatusRuntimeException(
+                    Status.INTERNAL
+                            .withDescription(e.getLocalizedMessage())
+                            .withCause(e)
+            ));
         }
     }
+
 }
