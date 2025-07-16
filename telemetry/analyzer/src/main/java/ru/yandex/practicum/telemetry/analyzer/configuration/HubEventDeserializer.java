@@ -1,4 +1,4 @@
-package ru.yandex.practicum.telemetry.aggregator.configuration;
+package ru.yandex.practicum.telemetry.analyzer.configuration;
 
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 

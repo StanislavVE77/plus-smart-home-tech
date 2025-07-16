@@ -49,10 +49,8 @@ public class AggregationStarter {
                         client.getProducer().send(snapshot);
                         log.info("Снапшот отправлен в топик {}", EventTopics.TELEMETRY_SNAPSHOT_TOPIC);
                     }
-                    log.info("... startManageOffset");
                     manageOffsets(record, count, client.getSensorConsumer());
                     count++;
-                    log.info("... stopManageOffset");
                 }
 
                 client.getSensorConsumer().commitAsync();
