@@ -56,7 +56,6 @@ public class SnapshotProcessor implements Runnable {
             log.error("Ошибка во время обработки снапшотов", e);
         } finally {
             try {
-                //client.getProducer().flush();
                 consumer.commitSync(currentOffsets);
             } finally {
                 log.info("Закрываем консьюмер");

@@ -16,20 +16,16 @@ public class InMemorySensorEvents {
     private final Map<String, SensorsSnapshotAvro> snapshots;
 
     public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event) {
-        log.info("...... Список снапшотов: {}", snapshots);
+        log.info("Список снапшотов: {}", snapshots);
         if (snapshots.containsKey(event.getHubId())) {
             SensorsSnapshotAvro snapshot = snapshots.get(event.getHubId());
             log.info("...... снапшот найден {}", event.getHubId());
             if (snapshot.getSensorsState().containsKey(event.getId())) {
                 SensorStateAvro oldState = snapshot.getSensorsState().get(event.getId());
                 log.info("...... предыдущее состояние найдено {}", oldState);
-                log.info("...... сравнение времени: старого {} и нового {}", oldState.getTimestamp(), event.getTimestamp());
-                //int comparisonResult = oldState.getTimestamp().compareTo(event.getTimestamp());
                 String oldStateStr = oldState.getData().toString();
                 String newStateStr = event.getPayload().toString();
-                log.info("...... сравнение данных состояния id={}: старого \"{}\" и нового \"{}\"", event.getId(), oldStateStr, newStateStr);
                 if (oldState.getTimestamp().isAfter(event.getTimestamp()) || oldStateStr.equals(newStateStr)) {
-                //if (comparisonResult >= 0 || oldState.getData() == event.getPayload()) {
                     log.info("...... предыдущее состояние не изменилось");
                     return Optional.empty();
                 } else {
@@ -38,9 +34,7 @@ public class InMemorySensorEvents {
                             .setTimestamp(event.getTimestamp())
                             .setData(event.getPayload())
                             .build();
-                    log.info("...... новое состояние теперь {}", newState);
                     snapshot.setTimestamp(event.getTimestamp());
-                    log.info("...... обновление времени снапшота");
                     snapshot.getSensorsState().put(event.getId(), newState);
                     log.info("...... обновленный снапшот теперь {}", snapshot);
                     return Optional.of(snapshot);

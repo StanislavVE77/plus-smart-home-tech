@@ -54,7 +54,8 @@ public class SnapshotHandleService {
                             SensorStateAvro state = sensorsState.get(sensorId);
                             if (condition.getType().equals("SWITCH")) {
                                 SwitchSensorAvro switchSensorAvro = (SwitchSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && ((condition.getValue() == 1 && switchSensorAvro.getState()) || (condition.getValue() == 0 && !switchSensorAvro.getState()))) {
+                                if (condition.getOperation().equals("EQUALS") && ((condition.getValue() == 1 && switchSensorAvro.getState()) ||
+                                        (condition.getValue() == 0 && !switchSensorAvro.getState()))) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
@@ -62,7 +63,8 @@ public class SnapshotHandleService {
                             }
                             if (condition.getType().equals("MOTION")) {
                                 MotionSensorAvro motionSensorAvro = (MotionSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && ((condition.getValue() == 1 && motionSensorAvro.getMotion()) || (condition.getValue() == 0 && !motionSensorAvro.getMotion()))) {
+                                if (condition.getOperation().equals("EQUALS") && ((condition.getValue() == 1 && motionSensorAvro.getMotion()) ||
+                                        (condition.getValue() == 0 && !motionSensorAvro.getMotion()))) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
@@ -70,11 +72,9 @@ public class SnapshotHandleService {
                             }
                             if (condition.getType().equals("LUMINOSITY")) {
                                 LightSensorAvro lightSensorAvro = (LightSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && condition.getValue() == lightSensorAvro.getLuminosity()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < lightSensorAvro.getLuminosity()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > lightSensorAvro.getLuminosity()) {
+                                if ((condition.getOperation().equals("EQUALS") && condition.getValue() == lightSensorAvro.getLuminosity()) ||
+                                        (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < lightSensorAvro.getLuminosity()) ||
+                                        (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > lightSensorAvro.getLuminosity())) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
@@ -82,11 +82,9 @@ public class SnapshotHandleService {
                             }
                             if (condition.getType().equals("CO2LEVEL")) {
                                 ClimateSensorAvro climateSensorAvro = (ClimateSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && condition.getValue() == climateSensorAvro.getCo2Level()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < climateSensorAvro.getCo2Level()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > climateSensorAvro.getCo2Level()) {
+                                if ((condition.getOperation().equals("EQUALS") && condition.getValue() == climateSensorAvro.getCo2Level()) ||
+                                        (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < climateSensorAvro.getCo2Level()) ||
+                                        (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > climateSensorAvro.getCo2Level())) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
@@ -94,11 +92,9 @@ public class SnapshotHandleService {
                             }
                             if (condition.getType().equals("HUMIDITY")) {
                                 ClimateSensorAvro climateSensorAvro = (ClimateSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && condition.getValue() == climateSensorAvro.getHumidity()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < climateSensorAvro.getHumidity()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > climateSensorAvro.getHumidity()) {
+                                if ((condition.getOperation().equals("EQUALS") && condition.getValue() == climateSensorAvro.getHumidity()) ||
+                                        (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < climateSensorAvro.getHumidity()) ||
+                                        (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > climateSensorAvro.getHumidity())) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
@@ -106,11 +102,9 @@ public class SnapshotHandleService {
                             }
                             if (condition.getType().equals("TEMPERATURE") && state.getData().getClass().getSimpleName().equals("TemperatureSensorAvro")) {
                                 TemperatureSensorAvro temperatureSensorAvro = (TemperatureSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && condition.getValue() == temperatureSensorAvro.getTemperatureC()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < temperatureSensorAvro.getTemperatureC()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > temperatureSensorAvro.getTemperatureC()) {
+                                if ((condition.getOperation().equals("EQUALS") && condition.getValue() == temperatureSensorAvro.getTemperatureC()) ||
+                                        (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < temperatureSensorAvro.getTemperatureC()) ||
+                                        (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > temperatureSensorAvro.getTemperatureC())) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
@@ -118,11 +112,9 @@ public class SnapshotHandleService {
                             }
                             if (condition.getType().equals("TEMPERATURE") && state.getData().getClass().getSimpleName().equals("ClimateSensorAvro")) {
                                 ClimateSensorAvro climateSensorAvro = (ClimateSensorAvro) state.getData();
-                                if (condition.getOperation().equals("EQUALS") && condition.getValue() == climateSensorAvro.getTemperatureC()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < climateSensorAvro.getTemperatureC()) {
-                                    switchExecution.add(1);
-                                } else if (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > climateSensorAvro.getTemperatureC()) {
+                                if ((condition.getOperation().equals("EQUALS") && condition.getValue() == climateSensorAvro.getTemperatureC()) ||
+                                        (condition.getOperation().equals("GREATER_THAN") && condition.getValue() < climateSensorAvro.getTemperatureC()) ||
+                                        (condition.getOperation().equals("LOWER_THAN") && condition.getValue() > climateSensorAvro.getTemperatureC())) {
                                     switchExecution.add(1);
                                 } else {
                                     switchExecution.add(0);
