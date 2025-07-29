@@ -7,10 +7,12 @@ import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
-import ru.yandex.practicum.telemetry.aggregator.configuration.EventClient;
+import ru.yandex.practicum.telemetry.aggregator.configuration.EventConsumerClient;
+import ru.yandex.practicum.telemetry.aggregator.configuration.EventProducerClient;
 import ru.yandex.practicum.telemetry.aggregator.configuration.EventTopics;
 
 import java.time.Duration;
@@ -23,20 +25,27 @@ import java.util.*;
 @Component
 @RequiredArgsConstructor
 public class AggregationStarter {
-    private final EventClient client;
+    private final EventConsumerClient clientConsumer;
+    private final EventProducerClient clientProducer;
     private final InMemorySensorEvents service;
+
+    @Value("${aggregator.kafka.consumer.topic}")
+    private String consumerTopic;
+
+    @Value("${aggregator.kafka.producer.topic}")
+    private String producerTopic;
 
     private static final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
 
     public void start() {
 
         try {
-            client.getSensorConsumer().subscribe(List.of(EventTopics.TELEMETRY_SENSOR_TOPIC));
+            clientConsumer.getSensorConsumer().subscribe(List.of(consumerTopic));
 
             int count = 0;
 
             while (true) {
-                ConsumerRecords<String, SpecificRecordBase> records = client.getSensorConsumer().poll(Duration.ofMillis(100));
+                ConsumerRecords<String, SpecificRecordBase> records = clientConsumer.getSensorConsumer().poll(Duration.ofMillis(100));
 
                 for (ConsumerRecord<String, SpecificRecordBase> record : records) {
                     log.info("Обновление снапшота");
@@ -45,15 +54,15 @@ public class AggregationStarter {
                         log.info("Обновление снапшота не произошло.");
                     } else {
                         log.info("Новый снапшот: {}", snapshotAvro.get());
-                        ProducerRecord<String, SpecificRecordBase> snapshot = new ProducerRecord<>(EventTopics.TELEMETRY_SNAPSHOT_TOPIC, snapshotAvro.get());
-                        client.getProducer().send(snapshot);
+                        ProducerRecord<String, SpecificRecordBase> snapshot = new ProducerRecord<>(producerTopic, snapshotAvro.get());
+                        clientProducer.getProducer().send(snapshot);
                         log.info("Снапшот отправлен в топик {}", EventTopics.TELEMETRY_SNAPSHOT_TOPIC);
                     }
-                    manageOffsets(record, count, client.getSensorConsumer());
+                    manageOffsets(record, count, clientConsumer.getSensorConsumer());
                     count++;
                 }
 
-                client.getSensorConsumer().commitAsync();
+                clientConsumer.getSensorConsumer().commitAsync();
             }
 
         } catch (WakeupException ignored) {
@@ -62,10 +71,11 @@ public class AggregationStarter {
             log.error("Ошибка во время обработки событий от датчиков", e);
         } finally {
             try {
-                client.getProducer().flush();
-                client.getSensorConsumer().commitSync(currentOffsets);
+                clientProducer.getProducer().flush();
+                clientConsumer.getSensorConsumer().commitSync(currentOffsets);
             } finally {
-                client.stop();
+                clientConsumer.stop();
+                clientProducer.stop();
             }
         }
     }
