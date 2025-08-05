@@ -22,7 +22,6 @@ public class ProductMapper {
         product.setPrice(productDto.getPrice());
         return product;
     }
-
     public ProductDto toProductDto(Product product) {
         return new ProductDto(
                 product.getId(),
