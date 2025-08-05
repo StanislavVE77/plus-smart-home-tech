@@ -58,6 +58,22 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(CreateNewProductSericeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleNewProductSericeException(CreateNewProductSericeException ex) {
+        log.error("500 Internal Server Error: {}", ex.getMessage(), ex);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        return new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.name(),
+                "SERVICE-ERROR.",
+                ex.getMessage() + "\n" + stackTrace,
+                LocalDateTime.now()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(final Exception e) {

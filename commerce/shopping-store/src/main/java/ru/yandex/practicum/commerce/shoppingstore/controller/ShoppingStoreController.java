@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.commerce.interactionapi.dto.*;
+import ru.yandex.practicum.commerce.interactionapi.exception.CreateNewProductSericeException;
 import ru.yandex.practicum.commerce.interactionapi.interfase.ShoppingStoreOperations;
 import ru.yandex.practicum.commerce.shoppingstore.service.ShoppingStoreService;
 
@@ -22,7 +23,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     private final ShoppingStoreService shoppingStoreService;
 
     @Override
-    public ProductDto createNewProduct(@Valid ProductDto product) {
+    public ProductDto createNewProduct(@Valid ProductDto product) throws CreateNewProductSericeException {
         log.info("--> PUT запрос {}", product);
         ProductDto newProduct = shoppingStoreService.createNewProduct(product);
         log.info("<-- PUT ответ {}", newProduct);

@@ -20,6 +20,7 @@ public class ProductMapper {
         product.setProductState(productDto.getProductState());
         product.setQuantityState(productDto.getQuantityState());
         product.setPrice(productDto.getPrice());
+
         return product;
     }
     public ProductDto toProductDto(Product product) {
