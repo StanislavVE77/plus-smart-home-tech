@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SortDto {
-    public String property;
-    public String direction;
+    private String property;
+    private String direction;
 }

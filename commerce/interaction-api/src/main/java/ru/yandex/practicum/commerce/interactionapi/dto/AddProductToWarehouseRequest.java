@@ -12,7 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddProductToWarehouseRequest {
-
-    UUID productId;
-    Long quantity;
+    private UUID productId;
+    private Long quantity;
 }

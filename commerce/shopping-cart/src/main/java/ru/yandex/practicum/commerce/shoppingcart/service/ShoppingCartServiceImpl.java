@@ -1,5 +1,6 @@
 package ru.yandex.practicum.commerce.shoppingcart.service;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.commerce.interactionapi.client.WarehouseClient;
@@ -35,6 +36,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @Transactional
     public ShoppingCartDto addProductToShoppingCart(String username, Map<UUID, Long> products) {
         UUID cartId;
         Optional<List<ShoppingCart>> shoppingCartList = shoppingCartRepository.findByUsername(username);
@@ -71,6 +73,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    @Transactional
     public ShoppingCartDto removeFromShoppingCart(String username, List<UUID> productIds) {
         UUID shoppingCartId = null;
         for (UUID productId : productIds) {

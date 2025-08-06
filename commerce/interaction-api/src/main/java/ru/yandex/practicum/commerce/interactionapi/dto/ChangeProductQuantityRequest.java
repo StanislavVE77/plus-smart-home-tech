@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChangeProductQuantityRequest {
-    Long newQuantity;
-    UUID productId;
+    private Long newQuantity;
+    private UUID productId;
 
 }
