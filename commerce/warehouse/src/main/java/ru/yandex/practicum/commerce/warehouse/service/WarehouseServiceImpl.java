@@ -1,6 +1,7 @@
 package ru.yandex.practicum.commerce.warehouse.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.commerce.interactionapi.dto.*;
 import ru.yandex.practicum.commerce.interactionapi.exception.NoSpecifiedProductInWarehouseException;
@@ -14,6 +15,7 @@ import java.util.Random;
 import java.security.*;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class WarehouseServiceImpl implements WarehouseService {
@@ -51,6 +53,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Double weight = 0D;
         Double volume = 0D;
         boolean fragile = false;
+        log.info("Проверка достаточного количества товаров для корзины {}", request.getShoppingCartId());
         for (UUID productId : request.getProducts().keySet()) {
             Optional<WarehouseProduct> product = warehouseRepository.findById(productId);
             if (product.isEmpty()) {
