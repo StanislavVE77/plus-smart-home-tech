@@ -2,7 +2,7 @@ package ru.yandex.practicum.commerce.shoppingcart.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.commerce.interactionapi.dto.ShoppingCartDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.shoppingcart.ShoppingCartDto;
 import ru.yandex.practicum.commerce.shoppingcart.model.ShoppingCart;
 
 import java.util.List;

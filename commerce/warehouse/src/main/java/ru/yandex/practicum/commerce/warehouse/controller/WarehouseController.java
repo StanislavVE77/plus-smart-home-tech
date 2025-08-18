@@ -4,9 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.commerce.interactionapi.dto.*;
+import ru.yandex.practicum.commerce.interactionapi.dto.AddressDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.BookedProductsDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.shoppingcart.ShoppingCartDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.warehouse.*;
 import ru.yandex.practicum.commerce.interactionapi.interfase.WarehouseOperations;
 import ru.yandex.practicum.commerce.warehouse.service.WarehouseService;
+
+import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -46,5 +52,28 @@ public class WarehouseController implements WarehouseOperations {
         BookedProductsDto result = warehouseService.checkProductQuantityEnoughForShoppingCart(request);
         log.info("<-- POST ответ {}", result);
         return result;
+    }
+
+    @Override
+    public void shippedToDelivery(ShippedToDeliveryRequest request) {
+        log.info("--> POST запрос на передачу в доставку: {}", request);
+        warehouseService.shippedToDelivery(request);
+        log.info("<-- POST ответ ");
+    }
+
+    @Override
+    public void acceptReturn(Map<UUID, Long> products) {
+        log.info("--> POST запрос принять возврат товаров на склад: {}", products);
+        warehouseService.acceptReturn(products);
+        log.info("<-- POST ответ ");
+
+    }
+
+    @Override
+    public BookedProductsDto assemblyProductsForOrder(AssemblyProductsForOrderRequest request) {
+        log.info("--> POST запрос собрать товары к заказу для подготовки к отправке: {}", request);
+        BookedProductsDto bookedProductsDto = warehouseService.assemblyProductsForOrder(request);
+        log.info("<-- POST ответ {}", bookedProductsDto);
+        return bookedProductsDto;
     }
 }

@@ -1,4 +1,5 @@
-package ru.yandex.practicum.commerce.interactionapi.dto;
+package ru.yandex.practicum.commerce.interactionapi.dto.shoppingcart;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,11 +12,8 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class WarehouseDto {
+public class ChangeProductQuantityRequest {
+    private Long newQuantity;
     private UUID productId;
-    private Double weight;
-    private DimensionDto dimension;
-    private boolean fragile;
-
 
 }

@@ -3,11 +3,17 @@ package ru.yandex.practicum.commerce.warehouse.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.commerce.interactionapi.dto.AddressDto;
-import ru.yandex.practicum.commerce.interactionapi.dto.DimensionDto;
-import ru.yandex.practicum.commerce.interactionapi.dto.NewProductInWarehouseRequest;
-import ru.yandex.practicum.commerce.interactionapi.dto.WarehouseDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.warehouse.AssemblyProductsForOrderRequest;
+import ru.yandex.practicum.commerce.interactionapi.dto.warehouse.DimensionDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.warehouse.NewProductInWarehouseRequest;
+import ru.yandex.practicum.commerce.interactionapi.dto.warehouse.WarehouseDto;
+import ru.yandex.practicum.commerce.warehouse.model.BookingProducts;
+import ru.yandex.practicum.commerce.warehouse.model.OrderBooking;
 import ru.yandex.practicum.commerce.warehouse.model.WarehouseProduct;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -38,7 +44,7 @@ public class WarehouseMapper {
         );
     }
 
-    public AddressDto toAddressDto (String address) {
+    public AddressDto toAddressDto(String address) {
         return new AddressDto(
                 address,
                 address,
@@ -48,4 +54,20 @@ public class WarehouseMapper {
         );
     }
 
+    public OrderBooking toOrderBooking(AssemblyProductsForOrderRequest request) {
+        List<BookingProducts> products = new ArrayList<>();
+        for (Map.Entry<UUID, Long> entry : request.getProducts().entrySet()) {
+            BookingProducts product = new BookingProducts();
+            product.setId(UUID.randomUUID());
+            product.setProductId(entry.getKey());
+            product.setQuantity(entry.getValue());
+            products.add(product);
+        }
+
+        OrderBooking orderBooking = new OrderBooking();
+        orderBooking.setOrderId(request.getOrderId());
+        orderBooking.setProducts(products);
+
+        return orderBooking;
+    }
 }
