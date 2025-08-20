@@ -80,8 +80,6 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDto productReturn(ProductReturnRequest request) {
         Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() -> new NoOrderFoundException(request.getOrderId()));
-        order.setState(OrderState.CANCELED);
-        Order updOrder = orderRepository.save(order);
         List<OrderProduct> products = order.getProducts();
         List<OrderProduct> newProducts = new ArrayList<>();
         for (OrderProduct curProduct : products) {
