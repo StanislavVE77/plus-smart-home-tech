@@ -16,12 +16,13 @@ import ru.yandex.practicum.commerce.interactionapi.dto.warehouse.ShippedToDelive
 import ru.yandex.practicum.commerce.interactionapi.exception.NoDeliveryFoundException;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @AllArgsConstructor
 public class DeliveryServiceImpl implements DeliveryService {
+    private static final BigDecimal BASE_PRICE = BigDecimal.valueOf(5.0);
+    private static final BigDecimal OTHER_STREET_RATE = new BigDecimal("1.2");
 
     private final DeliveryRepository deliveryRepository;
     private final DeliveryMapper mapper;
@@ -41,63 +42,49 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public void deliverySuccessful(UUID orderId) {
-        Optional<Delivery> delivery = deliveryRepository.findByOrderId(orderId);
-        if (delivery.isEmpty()) {
-            throw new NoDeliveryFoundException(delivery.get().getDeliveryId());
-        }
-        delivery.get().setDeliveryState(DeliveryState.DELIVERED);
-        Delivery updDelivery = deliveryRepository.save(delivery.get());
+        Delivery delivery = deliveryRepository.findByOrderId(orderId).orElseThrow(NoDeliveryFoundException::new);
+        delivery.setDeliveryState(DeliveryState.DELIVERED);
+        Delivery updDelivery = deliveryRepository.save(delivery);
         orderClient.delivery(orderId);
     }
 
     @Override
     @Transactional
     public void deliveryPicked(UUID orderId) {
-        Optional<Delivery> delivery = deliveryRepository.findByOrderId(orderId);
-        if (delivery.isEmpty()) {
-            throw new NoDeliveryFoundException(delivery.get().getDeliveryId());
-        }
-        delivery.get().setDeliveryState(DeliveryState.IN_PROGRESS);
-        Delivery updDelivery = deliveryRepository.save(delivery.get());
+        Delivery delivery = deliveryRepository.findByOrderId(orderId).orElseThrow(NoDeliveryFoundException::new);
+        delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
+        Delivery updDelivery = deliveryRepository.save(delivery);
         orderClient.complete(orderId);
     }
 
     @Override
     @Transactional
     public void deliveryFailed(UUID orderId) {
-        Optional<Delivery> delivery = deliveryRepository.findByOrderId(orderId);
-        if (delivery.isEmpty()) {
-            throw new NoDeliveryFoundException(delivery.get().getDeliveryId());
-        }
-        delivery.get().setDeliveryState(DeliveryState.FAILED);
-        Delivery updDelivery = deliveryRepository.save(delivery.get());
+        Delivery delivery = deliveryRepository.findByOrderId(orderId).orElseThrow(NoDeliveryFoundException::new);
+        delivery.setDeliveryState(DeliveryState.FAILED);
+        Delivery updDelivery = deliveryRepository.save(delivery);
         orderClient.deliveryFailed(orderId);
     }
 
     @Override
     public BigDecimal deliveryCost(OrderDto order) {
         BigDecimal deliveryPrice = BigDecimal.ZERO;
-        BigDecimal basePrice = BigDecimal.valueOf(5.0);
-        BigDecimal otherStreetRate = new BigDecimal("1.2");
         BigDecimal addressRate = new BigDecimal("1");
-        Optional<Delivery> delivery = deliveryRepository.findByOrderId(order.getOrderId());
-        if (delivery.isEmpty()) {
-            throw new NoDeliveryFoundException(delivery.get().getDeliveryId());
-        }
-        DeliveryAddress fromAddress = delivery.get().getDeliveryFromAddress();
-        DeliveryAddress toAddress = delivery.get().getDeliveryToAddress();
+        Delivery delivery = deliveryRepository.findByOrderId(order.getOrderId()).orElseThrow(NoDeliveryFoundException::new);
+        DeliveryAddress fromAddress = delivery.getDeliveryFromAddress();
+        DeliveryAddress toAddress = delivery.getDeliveryToAddress();
 
         if (fromAddress.toString().contains("ADDRESS_2")) {
             addressRate = BigDecimal.valueOf(2);
         }
-        deliveryPrice = basePrice.add(addressRate.multiply(basePrice));
-        if (delivery.get().isFragile()) {
+        deliveryPrice = BASE_PRICE.add(addressRate.multiply(BASE_PRICE));
+        if (delivery.isFragile()) {
             deliveryPrice = deliveryPrice.add(deliveryPrice.multiply(BigDecimal.valueOf(0.2)));
         }
-        deliveryPrice = deliveryPrice.add(BigDecimal.valueOf(0.3 * delivery.get().getDeliveryWeight()));
-        deliveryPrice = deliveryPrice.add(BigDecimal.valueOf(0.2 * delivery.get().getDeliveryVolume()));
+        deliveryPrice = deliveryPrice.add(BigDecimal.valueOf(0.3 * delivery.getDeliveryWeight()));
+        deliveryPrice = deliveryPrice.add(BigDecimal.valueOf(0.2 * delivery.getDeliveryVolume()));
         if (!fromAddress.getStreet().equals(toAddress.getStreet())) {
-            deliveryPrice = deliveryPrice.multiply(otherStreetRate);
+            deliveryPrice = deliveryPrice.multiply(OTHER_STREET_RATE);
         }
         return deliveryPrice;
     }

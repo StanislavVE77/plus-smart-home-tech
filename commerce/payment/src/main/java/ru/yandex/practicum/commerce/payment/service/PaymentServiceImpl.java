@@ -16,7 +16,6 @@ import ru.yandex.practicum.commerce.payment.repository.PaymentRepository;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -44,14 +43,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void paymentSuccess(UUID paymentId) {
-        Optional<Payment> payment = paymentRepository.findById(paymentId);
-        if (payment.isPresent()) {
-            payment.get().setPaymentStatus(PaymentStatus.SUCCESS);
-            paymentRepository.save(payment.get());
-            orderClient.payment(payment.get().getOrderId());
-        } else {
-            throw new NoPaymentFoundException(paymentId);
-        }
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new NoPaymentFoundException(paymentId));
+            payment.setPaymentStatus(PaymentStatus.SUCCESS);
+            paymentRepository.save(payment);
+            orderClient.payment(payment.getOrderId());
     }
 
     @Override
@@ -70,12 +65,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void paymentFailed(UUID paymentId) {
-        Optional<Payment> payment = paymentRepository.findById(paymentId);
-        if (payment.isPresent()) {
-            payment.get().setPaymentStatus(PaymentStatus.FAILED);
-            paymentRepository.save(payment.get());
-            orderClient.paymentFailed(payment.get().getOrderId());
-        }
-
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new NoPaymentFoundException(paymentId));
+        payment.setPaymentStatus(PaymentStatus.FAILED);
+        paymentRepository.save(payment);
+        orderClient.paymentFailed(payment.getOrderId());
     }
 }

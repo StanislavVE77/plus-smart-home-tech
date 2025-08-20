@@ -13,7 +13,6 @@ import ru.yandex.practicum.commerce.shoppingstore.mapper.ProductMapper;
 import ru.yandex.practicum.commerce.shoppingstore.model.Product;
 import ru.yandex.practicum.commerce.shoppingstore.repository.ProductRepository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,11 +30,9 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
 
     @Override
     public ProductDto getProduct(UUID productId) {
-        Optional<Product> product = productRepository.findById(productId);
-        if (product.isEmpty()) {
-            throw new ProductNotFoundException(productId);
-        }
-        return mapper.toProductDto(product.get());
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        return mapper.toProductDto(product);
     }
 
     @Override
@@ -46,10 +43,8 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
 
     @Override
     public ProductDto updateProduct(ProductDto productDto) {
-        Optional<Product> product = productRepository.findById(productDto.getProductId());
-        if (product.isEmpty()) {
-            throw new ProductNotFoundException(productDto.getProductId());
-        }
+        Product product = productRepository.findById(productDto.getProductId())
+                .orElseThrow(() -> new ProductNotFoundException(productDto.getProductId()));
         Product updProduct = mapper.toProduct(productDto);
         updProduct = productRepository.save(updProduct);
         return mapper.toProductDto(updProduct);
@@ -57,23 +52,19 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
 
     @Override
     public boolean removeProduct(UUID productId) {
-        Optional<Product> product = productRepository.findById(productId);
-        if (product.isEmpty()) {
-            throw new ProductNotFoundException(productId);
-        }
-        product.get().setProductState(ProductState.DEACTIVATE.toString());
-        Product updProduct = productRepository.save(product.get());
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        product.setProductState(ProductState.DEACTIVATE.toString());
+        Product updProduct = productRepository.save(product);
         return true;
     }
 
     @Override
     public boolean setProductQuantityState(UUID productId, ProductQuantityState state) {
-        Optional<Product> product = productRepository.findById(productId);
-        if (product.isEmpty()) {
-            throw new ProductNotFoundException(productId);
-        }
-        product.get().setQuantityState(state.toString());
-        Product updProduct = productRepository.save((product.get()));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException(productId));
+        product.setQuantityState(state.toString());
+        Product updProduct = productRepository.save((product));
         return true;
     }
 }

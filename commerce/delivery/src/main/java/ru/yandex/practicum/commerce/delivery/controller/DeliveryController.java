@@ -2,6 +2,8 @@ package ru.yandex.practicum.commerce.delivery.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.commerce.delivery.service.DeliveryService;
@@ -20,6 +22,7 @@ public class DeliveryController implements DeliveryOperations {
     private final DeliveryService deliveryService;
 
     @Override
+    @PutMapping
     public DeliveryDto planDelivery(DeliveryDto deliveryDto) {
         log.info("--> PUT запрос для создания новой доставки: {}", deliveryDto);
         DeliveryDto newDeliveryDto = deliveryService.planDelivery(deliveryDto);
@@ -28,6 +31,7 @@ public class DeliveryController implements DeliveryOperations {
     }
 
     @Override
+    @PostMapping("/successful")
     public void deliverySuccessful(UUID orderId) {
         log.info("--> POST запрос для эмуляции успешной доставки товара: {}", orderId);
         deliveryService.deliverySuccessful(orderId);
@@ -35,6 +39,7 @@ public class DeliveryController implements DeliveryOperations {
     }
 
     @Override
+    @PostMapping("/picked")
     public void deliveryPicked(UUID orderId) {
         log.info("--> POST запрос для эмуляции получения товара в доставку: {}", orderId);
         deliveryService.deliveryPicked(orderId);
@@ -42,6 +47,7 @@ public class DeliveryController implements DeliveryOperations {
     }
 
     @Override
+    @PostMapping("/failed")
     public void deliveryFailed(UUID orderId) {
         log.info("--> POST запрос для эмуляции неудачного вручения товара: {}", orderId);
         deliveryService.deliveryFailed(orderId);
@@ -49,6 +55,7 @@ public class DeliveryController implements DeliveryOperations {
     }
 
     @Override
+    @PostMapping("/cost")
     public BigDecimal deliveryCost(OrderDto order) {
         log.info("--> POST запрос для расчёта полной стоимости доставки заказа: {}", order);
         BigDecimal result = deliveryService.deliveryCost(order);

@@ -28,11 +28,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto getShoppingCart(String username) {
-        Optional<List<ShoppingCart>> shoppingCartList = shoppingCartRepository.findByUsername(username);
-        if (shoppingCartList.isEmpty()) {
-            throw new NoProductsInShoppingCartException(username);
-        }
-        return mapper.toShoppingCartDto(shoppingCartList.get());
+        List<ShoppingCart> shoppingCartList = shoppingCartRepository.findByUsername(username)
+                .orElseThrow(() -> new NoProductsInShoppingCartException(username));
+        return mapper.toShoppingCartDto(shoppingCartList);
     }
 
     @Override
@@ -62,13 +60,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
-        Optional<ShoppingCart> cart = shoppingCartRepository.findByProductId(request.getProductId());
-        if (cart.isEmpty()) {
-            throw new ProductNotFoundException(request.getProductId());
-        }
-        cart.get().setQuantity(request.getNewQuantity());
-        ShoppingCart updCart = shoppingCartRepository.save(cart.get());
-
+        ShoppingCart cart = shoppingCartRepository.findByProductId(request.getProductId())
+                .orElseThrow(() -> new ProductNotFoundException(request.getProductId()));
+        cart.setQuantity(request.getNewQuantity());
+        ShoppingCart updCart = shoppingCartRepository.save(cart);
         return getShoppingCart(username);
     }
 
@@ -77,13 +72,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public ShoppingCartDto removeFromShoppingCart(String username, List<UUID> productIds) {
         UUID shoppingCartId = null;
         for (UUID productId : productIds) {
-            Optional<ShoppingCart> cart = shoppingCartRepository.findByUsernameAndProductId(username, productId);
-            if (cart.isEmpty()) {
-                throw new ProductNotFoundException(productId);
-            } else {
-                shoppingCartId = cart.get().getShoppingCartId();
-                shoppingCartRepository.delete(cart.get());
-            }
+            ShoppingCart cart = shoppingCartRepository.findByUsernameAndProductId(username, productId)
+                    .orElseThrow(() -> new ProductNotFoundException(productId));
+            shoppingCartId = cart.getShoppingCartId();
+            shoppingCartRepository.delete(cart);
         }
         Optional<List<ShoppingCart>> cartsList = shoppingCartRepository.findByShoppingCartId(shoppingCartId);
         if (cartsList.get().isEmpty()) {
@@ -94,13 +86,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public boolean deactivateCurrentShoppingCart(String username) {
-        Optional<List<ShoppingCart>> shoppingCartList = shoppingCartRepository.findByUsername(username);
-        if (shoppingCartList.isEmpty()) {
-            throw new NoProductsInShoppingCartException(username);
-        } else {
-            for (ShoppingCart cart : shoppingCartList.get()) {
-                shoppingCartRepository.delete(cart);
-            }
+        List<ShoppingCart> shoppingCartList = shoppingCartRepository.findByUsername(username)
+                .orElseThrow(() -> new NoProductsInShoppingCartException(username));
+        for (ShoppingCart cart : shoppingCartList) {
+            shoppingCartRepository.delete(cart);
         }
         return true;
     }

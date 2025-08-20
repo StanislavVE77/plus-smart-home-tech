@@ -1,6 +1,5 @@
 package ru.yandex.practicum.commerce.order.service;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -80,12 +79,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto productReturn(ProductReturnRequest request) {
-        Optional<Order> order = orderRepository.findById(request.getOrderId());
-        if (order.isEmpty()) {
-            throw new NoOrderFoundException(request.getOrderId());
-        }
-        orderRepository.delete(order.get());
-        List<OrderProduct> products = order.get().getProducts();
+        Order order = orderRepository.findById(request.getOrderId()).orElseThrow(() -> new NoOrderFoundException(request.getOrderId()));
+        orderRepository.delete(order);
+        List<OrderProduct> products = order.getProducts();
         List<OrderProduct> newProducts = new ArrayList<>();
         for (OrderProduct curProduct : products) {
             for (Map.Entry<UUID, Long> entry : request.getProducts().entrySet()) {
@@ -98,27 +94,24 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
         }
-        order.get().setProducts(newProducts);
-        order.get().setState(OrderState.PRODUCT_RETURNED);
+        order.setProducts(newProducts);
+        order.setState(OrderState.PRODUCT_RETURNED);
 
-        Order updOrder = orderRepository.save(order.get());
+        Order updOrder = orderRepository.save(order);
         return mapper.toOrderDto(updOrder);
     }
 
     @Override
     @Transactional
     public OrderDto updateOrderStatus(UUID orderId, OrderState state) {
-        Optional<Order> order = orderRepository.findById(orderId);
-        if (order.isEmpty()) {
-            throw new NoOrderFoundException(orderId);
-        }
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NoOrderFoundException(orderId));
         if (state.equals(OrderState.ON_PAYMENT)) {
-            PaymentDto paymentDto = paymentClient.payment(mapper.toOrderDto(order.get()));
-            order.get().setPaymentId(paymentDto.getPaymentId());
+            PaymentDto paymentDto = paymentClient.payment(mapper.toOrderDto(order));
+            order.setPaymentId(paymentDto.getPaymentId());
         }
-        order.get().setState(state);
+        order.setState(state);
 
-        Order updOrder = orderRepository.save(order.get());
+        Order updOrder = orderRepository.save(order);
         return mapper.toOrderDto(updOrder);
 
     }
@@ -126,27 +119,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderDto calculateTotalCost(UUID orderId) {
-        Optional<Order> order = orderRepository.findById(orderId);
-        if (order.isEmpty()) {
-            throw new NoOrderFoundException(orderId);
-        }
-        BigDecimal totalCost = paymentClient.getTotalCost(mapper.toOrderDto(order.get()));
-        order.get().setTotalPrice(totalCost);
-        Order updOrder = orderRepository.save(order.get());
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NoOrderFoundException(orderId));
+        BigDecimal totalCost = paymentClient.getTotalCost(mapper.toOrderDto(order));
+        order.setTotalPrice(totalCost);
+        Order updOrder = orderRepository.save(order);
         return mapper.toOrderDto(updOrder);
     }
 
     @Override
     @Transactional
     public OrderDto calculateDeliveryCost(UUID orderId) {
-        Optional<Order> order = orderRepository.findById(orderId);
-        if (order.isEmpty()) {
-            throw new NoOrderFoundException(orderId);
-        }
-        BigDecimal deliveryCost = deliveryClient.deliveryCost(mapper.toOrderDto(order.get()));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NoOrderFoundException(orderId));
+        BigDecimal deliveryCost = deliveryClient.deliveryCost(mapper.toOrderDto(order));
 
-        order.get().setDeliverPrice(deliveryCost);
-        Order updOrder = orderRepository.save(order.get());
+        order.setDeliverPrice(deliveryCost);
+        Order updOrder = orderRepository.save(order);
         return mapper.toOrderDto(updOrder);
     }
 }

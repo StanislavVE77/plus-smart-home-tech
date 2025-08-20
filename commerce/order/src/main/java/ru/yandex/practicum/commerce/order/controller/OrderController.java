@@ -3,8 +3,7 @@ package ru.yandex.practicum.commerce.order.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.interactionapi.dto.order.CreateNewOrderRequest;
 import ru.yandex.practicum.commerce.interactionapi.dto.order.OrderDto;
 import ru.yandex.practicum.commerce.interactionapi.dto.order.OrderState;
@@ -23,6 +22,7 @@ public class OrderController implements OrderOperations {
     private final OrderService orderService;
 
     @Override
+    @GetMapping
     public List<OrderDto> getClientOrders(String username) {
         log.info("--> GET запрос c username={}", username);
         List<OrderDto> orders = orderService.getClientOrders(username);
@@ -31,6 +31,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PutMapping
     public OrderDto createNewOrder(CreateNewOrderRequest request) {
         log.info("--> PUT запрос c  CreateNewOrderRequest={}", request);
         OrderDto order = orderService.createNewOrder(request);
@@ -39,6 +40,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/return")
     public OrderDto productReturn(ProductReturnRequest request) {
         log.info("--> POST запрос на возврат заказа: {}", request);
         OrderDto order = orderService.productReturn(request);
@@ -47,6 +49,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/payment")
     public OrderDto payment(UUID orderId) {
         log.info("--> POST запрос на оплату заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.PAID);
@@ -55,6 +58,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/payment/failed")
     public OrderDto paymentFailed(UUID orderId) {
         log.info("--> POST запрос при ошибке оплаты заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.PAYMENT_FAILED);
@@ -63,6 +67,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/delivery")
     public OrderDto delivery(UUID orderId) {
         log.info("--> POST запрос при доставки заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.DELIVERED);
@@ -71,6 +76,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/delivery/failed")
     public OrderDto deliveryFailed(UUID orderId) {
         log.info("--> POST запрос при ошибке доставки заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.DELIVERY_FAILED);
@@ -79,6 +85,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/completed")
     public OrderDto complete(UUID orderId) {
         log.info("--> POST запрос при завершении заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.COMPLETED);
@@ -87,6 +94,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/calculate/total")
     public OrderDto calculateTotalCost(UUID orderId) {
         log.info("--> POST запрос при подсчете общей стоимости заказа: {}", orderId);
         OrderDto order = orderService.calculateTotalCost(orderId);
@@ -95,6 +103,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/calculate/delivery")
     public OrderDto calculateDeliveryCost(UUID orderId) {
         log.info("--> POST запрос при подсчете стоимости доставки заказа: {}", orderId);
         OrderDto order = orderService.calculateDeliveryCost(orderId);
@@ -103,6 +112,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/assembly")
     public OrderDto assembly(UUID orderId) {
         log.info("--> POST запрос при сборки заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.ASSEMBLED);
@@ -111,6 +121,7 @@ public class OrderController implements OrderOperations {
     }
 
     @Override
+    @PostMapping("/assembly/failed")
     public OrderDto assemblyFailed(UUID orderId) {
         log.info("--> POST запрос при ошибки сборки заказа: {}", orderId);
         OrderDto order = orderService.updateOrderStatus(orderId, OrderState.ASSEMBLY_FAILED);
