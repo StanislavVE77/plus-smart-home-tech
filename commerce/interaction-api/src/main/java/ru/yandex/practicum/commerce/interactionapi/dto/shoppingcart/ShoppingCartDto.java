@@ -1,4 +1,4 @@
-package ru.yandex.practicum.commerce.interactionapi.dto;
+package ru.yandex.practicum.commerce.interactionapi.dto.shoppingcart;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +13,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShoppingCartDto {
+
     private UUID shoppingCartId;
     private String username;
     private Map<UUID, Long> products;
-
-
 }

@@ -5,9 +5,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.commerce.interactionapi.dto.*;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.commerce.interactionapi.dto.PageDTO;
+import ru.yandex.practicum.commerce.interactionapi.dto.ProductCategory;
+import ru.yandex.practicum.commerce.interactionapi.dto.ProductQuantityState;
+import ru.yandex.practicum.commerce.interactionapi.dto.SortDto;
+import ru.yandex.practicum.commerce.interactionapi.dto.shoppingstore.ProductDto;
 import ru.yandex.practicum.commerce.interactionapi.exception.CreateNewProductSericeException;
 import ru.yandex.practicum.commerce.interactionapi.interfase.ShoppingStoreOperations;
 import ru.yandex.practicum.commerce.shoppingstore.service.ShoppingStoreService;
@@ -23,6 +26,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     private final ShoppingStoreService shoppingStoreService;
 
     @Override
+    @PutMapping
     public ProductDto createNewProduct(@Valid ProductDto product) throws CreateNewProductSericeException {
         log.info("--> PUT запрос {}", product);
         ProductDto newProduct = shoppingStoreService.createNewProduct(product);
@@ -31,6 +35,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     }
 
     @Override
+    @PostMapping
     public ProductDto updateProduct(@Valid ProductDto product) {
         log.info("--> POST запрос {}", product);
         ProductDto updProduct = shoppingStoreService.updateProduct(product);
@@ -39,6 +44,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     }
 
     @Override
+    @GetMapping("/{productId}")
     public ProductDto getProduct(UUID productId) {
         log.info("--> GET запрос c productId={}", productId);
         ProductDto product = shoppingStoreService.getProduct(productId);
@@ -47,6 +53,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     }
 
     @Override
+    @GetMapping
     public PageDTO<ProductDto> getProducts(ProductCategory category, Pageable pageable) {
         log.info("--> GET запрос c category={}", category);
         Page<ProductDto> products = shoppingStoreService.getProducts(category, pageable);
@@ -57,6 +64,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     }
 
     @Override
+    @PostMapping("/quantityState")
     public boolean setProductQuantityState(UUID productId, ProductQuantityState quantityState) {
         log.info("--> POST запрос c productId={} и QuantityState={}", productId, quantityState);
         boolean result = shoppingStoreService.setProductQuantityState(productId, quantityState);
@@ -65,6 +73,7 @@ public class ShoppingStoreController implements ShoppingStoreOperations {
     }
 
     @Override
+    @PostMapping("/removeProductFromStore")
     public boolean removeProductFromStore(@Valid UUID productId) {
         log.info("--> POST запрос на удаление продукта c productId={}", productId);
         boolean result = shoppingStoreService.removeProduct(productId);

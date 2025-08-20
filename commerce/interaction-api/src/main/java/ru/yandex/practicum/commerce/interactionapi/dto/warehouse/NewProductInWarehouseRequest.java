@@ -1,4 +1,4 @@
-package ru.yandex.practicum.commerce.interactionapi.dto;
+package ru.yandex.practicum.commerce.interactionapi.dto.warehouse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,9 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddProductToWarehouseRequest {
+public class NewProductInWarehouseRequest {
+    private DimensionDto dimension;
     private UUID productId;
-    private Long quantity;
+    private Double weight;
+    private boolean fragile;
 }

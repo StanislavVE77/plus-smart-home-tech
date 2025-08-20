@@ -2,10 +2,9 @@ package ru.yandex.practicum.commerce.shoppingcart.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.commerce.interactionapi.dto.ChangeProductQuantityRequest;
-import ru.yandex.practicum.commerce.interactionapi.dto.ShoppingCartDto;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.commerce.interactionapi.dto.shoppingcart.ChangeProductQuantityRequest;
+import ru.yandex.practicum.commerce.interactionapi.dto.shoppingcart.ShoppingCartDto;
 import ru.yandex.practicum.commerce.interactionapi.exception.NotAuthorizedUserException;
 import ru.yandex.practicum.commerce.interactionapi.interfase.ShoppingCartOperations;
 import ru.yandex.practicum.commerce.shoppingcart.service.ShoppingCartService;
@@ -22,6 +21,7 @@ public class ShoppingCartController implements ShoppingCartOperations {
     private final ShoppingCartService shoppingCartService;
 
     @Override
+    @GetMapping
     public ShoppingCartDto getShoppingCart(String username)
             throws NotAuthorizedUserException {
         log.info("--> GET запрос c username={}", username);
@@ -31,6 +31,7 @@ public class ShoppingCartController implements ShoppingCartOperations {
     }
 
     @Override
+    @PutMapping
     public ShoppingCartDto addProductToShoppingCart(String username, Map<UUID, Long> products)
             throws NotAuthorizedUserException {
         log.info("--> PUT запрос c username={} и products={}", username, products);
@@ -40,6 +41,7 @@ public class ShoppingCartController implements ShoppingCartOperations {
     }
 
     @Override
+    @PostMapping("/change-quantity")
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
         log.info("--> POST запрос на изменение количества продукта в корзине: {}", request);
         ShoppingCartDto cart = shoppingCartService.changeProductQuantity(username, request);
@@ -48,6 +50,7 @@ public class ShoppingCartController implements ShoppingCartOperations {
     }
 
     @Override
+    @PostMapping("/remove")
     public ShoppingCartDto removeFromShoppingCart(String username, List<UUID> productIds) {
         log.info("--> POST запрос на удаление продуктов из корзины: {}", productIds);
         ShoppingCartDto cart = shoppingCartService.removeFromShoppingCart(username, productIds);
@@ -56,6 +59,7 @@ public class ShoppingCartController implements ShoppingCartOperations {
     }
 
     @Override
+    @DeleteMapping
     public boolean deactivateCurrentShoppingCart(String username) {
         log.info("--> DELETE запрос c username={}", username);
         boolean result = shoppingCartService.deactivateCurrentShoppingCart(username);

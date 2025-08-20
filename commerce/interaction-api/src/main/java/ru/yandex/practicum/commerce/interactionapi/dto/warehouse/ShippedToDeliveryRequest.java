@@ -1,16 +1,17 @@
-package ru.yandex.practicum.commerce.interactionapi.dto;
+package ru.yandex.practicum.commerce.interactionapi.dto.warehouse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class DimensionDto {
-    private Double depth;
-    private Double height;
-    private Double width;
+public class ShippedToDeliveryRequest {
+    private UUID deliveryId;
+    private UUID orderId;
 }

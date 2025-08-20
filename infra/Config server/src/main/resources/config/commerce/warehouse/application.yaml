@@ -17,3 +17,23 @@ spring:
   sql:
     init:
       mode: always
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+        alphanumeric-ids:
+          enabled: true
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 50
+      failureRateThreshold: 50
+instances:
+  order:
+    slidingWindowSize: 10
+    waitDurationInOpenState: 10000 # 10 секунд в миллисекундах
+    permittedNumberOfCallsInHalfOpenState: 3
+    slidingWindowType: COUNT_BASED
+    minimumNumberOfCalls: 5
+    automaticTransitionFromOpenToHalfOpenEnabled: true

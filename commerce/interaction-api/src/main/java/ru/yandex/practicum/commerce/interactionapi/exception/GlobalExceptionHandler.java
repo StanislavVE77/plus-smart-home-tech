@@ -13,6 +13,50 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler(WarehouseServicesNotAvailableException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public ErrorResponse handleWarehouseServicesNotAvailableException(WarehouseServicesNotAvailableException ex) {
+        return new ErrorResponse(
+                HttpStatus.METHOD_NOT_ALLOWED.name(),
+                "Service not available.",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(NoDeliveryFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoDeliveryFoundException(NoDeliveryFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.name(),
+                "The required payment was not found.",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(NoPaymentFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoPaymentFoundException(NoPaymentFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.name(),
+                "The required payment was not found.",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+
+    @ExceptionHandler(NoOrderFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNoOrderFoundException(NoOrderFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.name(),
+                "The required order was not found.",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
 
     @ExceptionHandler(NoProductsInShoppingCartException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -70,6 +114,28 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.name(),
                 "SERVICE-ERROR.",
                 ex.getMessage() + "\n" + stackTrace,
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(ProductInShoppingCartNotInWarehouse.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleProductInShoppingCartNotInWarehouse(ProductInShoppingCartNotInWarehouse ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.name(),
+                "The product from cart not found in warehouse.",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(SpecifiedProductAlreadyInWarehouseException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleSpecifiedProductAlreadyInWarehouseException(SpecifiedProductAlreadyInWarehouseException ex) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.name(),
+                "Bad request.",
+                ex.getMessage(),
                 LocalDateTime.now()
         );
     }

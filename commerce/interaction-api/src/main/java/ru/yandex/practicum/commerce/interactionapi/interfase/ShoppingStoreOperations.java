@@ -5,8 +5,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.commerce.interactionapi.dto.PageDTO;
 import ru.yandex.practicum.commerce.interactionapi.dto.ProductCategory;
-import ru.yandex.practicum.commerce.interactionapi.dto.ProductDto;
 import ru.yandex.practicum.commerce.interactionapi.dto.ProductQuantityState;
+import ru.yandex.practicum.commerce.interactionapi.dto.shoppingstore.ProductDto;
 
 import java.util.UUID;
 
